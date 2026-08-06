@@ -80,14 +80,12 @@ func (rm *RoomManager) GetChatInfoForThread(ctx context.Context, thread *email.E
 	// Set up power levels to make room read-only for email participants
 	powerLevels := BuildReadOnlyPowerLevels()
 
-	// Also include an explicit member entry for the Matrix user to ensure initial membership at creation
-	initialMembers := []bridgev2.ChatMember{
-		{
-			EventSender: bridgev2.EventSender{IsFromMe: true},
-			Membership:  event.MembershipJoin,
-			// Do not elevate the human user's power level here.
-		},
+	// Build Members slice from memberMap so initial state events include all ghost senders
+	initialMembers := make([]bridgev2.ChatMember, 0, len(memberMap))
+	for _, member := range memberMap {
+		initialMembers = append(initialMembers, member)
 	}
+
 	chatInfo := &bridgev2.ChatInfo{
 		Name:  ptr.Ptr(roomName),
 		Topic: ptr.Ptr(roomTopic),
