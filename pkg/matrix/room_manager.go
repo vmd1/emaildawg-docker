@@ -97,7 +97,6 @@ func (rm *RoomManager) GetChatInfoForThread(ctx context.Context, thread *email.E
 			TotalMemberCount: len(memberMap),
 			Members:          initialMembers,
 			MemberMap:        memberMap,
-			PowerLevels:      powerLevels,
 		},
 		CanBackfill: true,
 	}
