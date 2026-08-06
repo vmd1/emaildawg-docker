@@ -1,5 +1,5 @@
 # --- Builder stage (Debian bookworm) ---
-FROM --platform=$BUILDPLATFORM golang:1.22.5-bookworm AS builder
+FROM --platform=$BUILDPLATFORM golang:1.23-bookworm AS builder
 
 # Install build dependencies including libolm
 RUN apt-get update -y \
