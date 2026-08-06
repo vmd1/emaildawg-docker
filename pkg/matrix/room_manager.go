@@ -77,9 +77,6 @@ func (rm *RoomManager) GetChatInfoForThread(ctx context.Context, thread *email.E
 		}
 	}
 
-	// Set up power levels to make room read-only for email participants
-	powerLevels := BuildReadOnlyPowerLevels()
-
 	// Build Members slice from memberMap so initial state events include all ghost senders
 	initialMembers := make([]bridgev2.ChatMember, 0, len(memberMap))
 	for _, member := range memberMap {
