@@ -648,7 +648,7 @@ func processTextLogin(ctx context.Context, ce *commands.Event, email, password s
 	emailLogin.username = email
 	emailLogin.password = password
 
-	// Submit the credentials as if they came from form input
+	// Submit credentials step
 	inputData := map[string]string{
 		"email":    email,
 		"password": password,
@@ -657,6 +657,38 @@ func processTextLogin(ctx context.Context, ce *commands.Event, email, password s
 	step, err := emailLogin.SubmitUserInput(ctx, inputData)
 	if err != nil {
 		return err
+	}
+
+	// Check if step moved to folder selection
+	if emailLogin.currentStep == "folder_selection" {
+		// Look for optional folders parameter in command args
+		foldersInput := "default"
+		for _, part := range parseQuotedArgs(ce.RawArgs) {
+			if strings.HasPrefix(part, "folders:") {
+				foldersInput = strings.TrimPrefix(part, "folders:")
+			}
+		}
+
+		// Submit folder selection step
+		folderStep, err := emailLogin.SubmitUserInput(ctx, map[string]string{
+			"folder_selection": foldersInput,
+		})
+		if err != nil {
+			return fmt.Errorf("folder selection failed: %w", err)
+		}
+
+		// If moved to confirmation step, submit confirmation automatically
+		if emailLogin.currentStep == "confirmation" {
+			completeStep, err := emailLogin.SubmitUserInput(ctx, map[string]string{
+				"confirmation": "yes",
+			})
+			if err != nil {
+				return fmt.Errorf("confirmation failed: %w", err)
+			}
+			step = completeStep
+		} else {
+			step = folderStep
+		}
 	}
 
 	// Send success message
